@@ -32,6 +32,17 @@
           :placeholder="$t('login.password')"
         />
       </el-form-item>
+      <el-form-item prop="captha">
+        <div class="captha">
+          <el-input
+            class="text"
+            v-model="model.captha"
+            prefix-icon="Picture"
+            placeholder="请输入验证码"
+          ></el-input>
+          <image src="capthaSrc" @click="refreshCaptha"></image>
+        </div>
+      </el-form-item>
       <el-form-item>
         <el-button
           :loading="loading"
@@ -59,8 +70,9 @@ import {
   ref,
   computed,
   watch,
+  onMounted,
 } from 'vue'
-import { Login } from '@/api/login'
+import { Login, GetValidateCode } from '@/api/login'
 import { useRouter, useRoute } from 'vue-router'
 import ChangeLang from '@/layout/components/Topbar/ChangeLang.vue'
 import useLang from '@/i18n/useLang'
@@ -70,6 +82,9 @@ export default defineComponent({
   components: { ChangeLang },
   name: 'login',
   setup() {
+    onMounted(() => {
+      state.refreshCaptcha
+    })
     const { proxy: ctx } = getCurrentInstance() // 可以把ctx当成vue2中的this
     const router = useRouter()
     const route = useRoute()
@@ -98,11 +113,26 @@ export default defineComponent({
           trigger: 'blur',
         },
       ],
+      captcha: [
+        {
+          required: true,
+          message: ctx.$t('login.rules-validate-code'),
+          trigger: 'blur',
+        },
+      ],
     })
     const state = reactive({
       model: {
         userName: 'admin',
         password: '123456',
+        captcha: '',
+        codeKey: '',
+      },
+      captchaSrc: '',
+      refreshCaptcha: async () => {
+        const { data } = await GetValidateCode()
+        state.model.codeKey = data.codeKey
+        state.captchaSrc = data.codeValue
       },
       rules: getRules(),
       loading: false,
@@ -152,6 +182,20 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+// 验证码输入框样式 start
+.captcha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.captcha img {
+  cursor: pointer;
+  margin-left: 20px;
+}
+
+// 验证码输入框样式 end
 .login {
   transition: transform 1s;
   transform: scale(1);
@@ -159,58 +203,71 @@ export default defineComponent({
   height: 100%;
   overflow: hidden;
   background: #2d3a4b;
+
   .form {
     width: 520px;
     max-width: 100%;
     padding: 0 24px;
     box-sizing: border-box;
     margin: 160px auto 0;
+
     :deep {
       .el-input__wrapper {
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
         background: rgba(0, 0, 0, 0.1);
       }
+
       .el-input-group--append > .el-input__wrapper {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
       }
+
       .el-input-group--prepend > .el-input__wrapper {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
       }
     }
+
     .title {
       color: #fff;
       text-align: center;
       font-size: 24px;
       margin: 0 0 24px;
     }
+
     .text {
       font-size: 16px;
+
       :deep(.el-input__inner) {
         color: #fff;
         height: 48px;
         line-height: 48px;
+
         &::placeholder {
           color: rgba(255, 255, 255, 0.2);
         }
       }
     }
+
     .btn {
       width: 100%;
     }
   }
 }
+
 .change-lang {
   position: fixed;
   right: 20px;
   top: 20px;
+
   :deep {
     .change-lang {
       height: 24px;
+
       &:hover {
         background: none;
       }
+
       .icon {
         color: #fff;
       }
