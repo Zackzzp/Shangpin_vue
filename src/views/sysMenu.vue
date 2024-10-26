@@ -21,7 +21,7 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">提交</el-button>
+        <el-button type="primary" @click="saveOrUpdate">提交</el-button>
         <el-button @click="dialogVisible = false">取消</el-button>
       </el-form-item>
     </el-form>
@@ -42,13 +42,13 @@
     </el-table-column>
     <el-table-column prop="createTime" label="创建时间" />
     <el-table-column label="操作" align="center" width="280">
-      <el-button type="success" size="small">
+      <el-button type="success" size="small" @click="addShow(scope.row)">
         添加下级节点
       </el-button>
-      <el-button type="primary" size="small">
+      <el-button type="primary" size="small" @click="editShow(scope.row)">
         修改
       </el-button>
-      <el-button type="danger" size="small">
+      <el-button type="danger" size="small" @click="remove(scope.row.id)">
         删除
       </el-button>
     </el-table-column>
@@ -57,7 +57,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { FindNodes, SaveMenu } from '@/api/sysMenu'
+import {
+  FindNodes,
+  SaveMenu,
+  RemoveSysMenuById,
+  UpdateSysMenuById,
+} from '@/api/sysMenu'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 // 定义表格数据模型
@@ -75,9 +80,15 @@ const fetchData = async () => {
 const diaglogTitle = ref('添加')
 const diaglogVisible = ref(false)
 
-const addShow = () => {
+const addShow = row => {
+  sysMenu.value = {}
   diaglogVisible.value = true
-  diaglogTitle.value = '添加'
+  if (!row.id) {
+    diaglogTitle.value = '添加'
+  } else {
+    diaglogTitle.value = '添加下级节点'
+    sysMenu.value.parentId = row.id
+  }
 }
 
 //页面表单数据
@@ -98,8 +109,9 @@ const sysMenu = ref(defaultForm)
 //提交保存与修改
 const saveOrUpdate = () => {
   if (!sysMenu.value.id) {
-    sysMenu.value.parentId = 0
     saveData()
+  } else {
+    updateData()
   }
 }
 
@@ -109,6 +121,39 @@ const saveData = async () => {
   diaglogVisible.value = false
   ElMessage.success('操作成功')
   fetchData()
+}
+
+const editShow = row => {
+  sysMenu.value = row
+  diaglogVisible.value = true
+}
+
+const updateData = async () => {
+  await UpdateSysMenuById(sysMenu.value)
+  diaglogVisible.value = false
+  ElMessage.success('操作成功')
+  fetchData()
+}
+
+const remove = async id => {
+  console.log('removeDataById:' + id)
+  ElMessageBox.confirm('此操作将永久删除该记录，是否继续？', 'Warning', {
+    cofirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  })
+    .then(async () => {
+      const { code, message } = await RemoveSysMenuById(id)
+      if (code == 200) {
+        ElMessage.success('删除成功')
+        fetchData()
+      } else {
+        ElMessage.error(message)
+      }
+    })
+    .catch(() => {
+      ElMessage.error('取消删除')
+    })
 }
 </script>
 

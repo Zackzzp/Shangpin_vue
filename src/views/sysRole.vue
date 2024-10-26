@@ -15,7 +15,12 @@
 
     <!-- 添加按钮 -->
     <div class="tools-div">
-      <el-button type="success" size="small">添 加</el-button>
+      <el-button type="success" size="small" @click="addShow(scope.row)">
+        添 加
+      </el-button>
+      <el-button type="warning" size="small" @click="showAssignMenu(scope.row)">
+        分配菜单
+      </el-button>
     </div>
     <!--添加角色表单对话框-->
     <el-dialog v-model="diaglogVisible" title="添加或修改角色" width="30%">
@@ -27,8 +32,27 @@
           <el-input />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">提交</el-button>
+          <el-button type="primary" @click="submit">提交</el-button>
           <el-button @click="diaglogVisible = false">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <!-- 分配菜单的对话框  -->
+    <el-dialog v-model="dialogMenuVisible" title="分配菜单" width="40%">
+      <el-form label-width="80px">
+        <el-tree
+          :data="sysMenuTreeList"
+          show-checkbox
+          default-expand-all
+          node-key="id"
+          :props="defaultProps"
+          :check-on-click-node="true"
+        />
+        <el-form-item>
+          <el-button type="primary" @click="doAssign(scope.row.id)">
+            提交
+          </el-button>
+          <el-button @click="dialogMenuVisible = false">取消</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -42,11 +66,21 @@
         <el-button type="primary" size="small" @click="editShow(scope.row)">
           修改
         </el-button>
-        <el-button type="danger" size="small">
+        <el-button type="danger" size="small" @click="deleteById(scope.row.id)">
           删除
         </el-button>
       </el-table-column>
     </el-table>
+
+    <el-tree
+      :data="sysMenuTreeList"
+      ref="tree"
+      show-checkbox
+      default-expand-all
+      :check-on-click-node="true"
+      node-key="id"
+      :props="defaultProps"
+    />
 
     <!--分页条-->
     <el-pagination
@@ -68,6 +102,8 @@ import {
   SaveSysRole,
   UpdateSysRole,
   DeleteSysRoleById,
+  GetSysRoleMenuIds,
+  DoAssignMenuIdToSysRole,
 } from '@/api/sysRole'
 import { ElMessage, ElMessageBox } from 'element-plus'
 // 分页条总记录数
@@ -167,6 +203,76 @@ const deleteById = row => {
     .catch(() => {
       ElMessage.info('取消删除')
     })
+}
+//分配菜单
+const defaultProps = {
+  children: 'children',
+  label: 'title',
+}
+const dialogMenuVisible = ref(false)
+const sysMenuTreeList = ref([
+  {
+    id: 1,
+    title: '系统管理',
+    children: [
+      { id: 2, title: '用户管理' },
+      { id: 3, title: '角色管理' },
+      { id: 4, title: '菜单管理' },
+    ],
+  },
+  {
+    id: 5,
+    title: '数据管理',
+    component: 'base',
+    sortValue: 2,
+    status: 1,
+    createTime: '2023-05-04',
+    children: [
+      { id: 6, title: '商品单位' },
+      { id: 7, title: '地区管理' },
+    ],
+  },
+])
+// 树对象变量
+const tree = ref()
+
+// 默认选中的菜单数据集合
+const showAssignMenu = async row => {
+  dialogMenuVisible.value = true
+  const { data } = await GetSysRoleMenuIds(row.id) // 请求后端地址获取所有的菜单数据，以及当前角色所对应的菜单数据
+  sysMenuTreeList.value = data.sysMenuList
+  tree.value.setCheckedKeys(data.roleMenuIds) // 进行数据回显
+}
+
+const doAssign = async roleId => {
+  const checkedNodes = tree.value.getCheckedNodes()
+  const checkedNodesIds = checkedNodes.map(node => {
+    return {
+      id: node.id,
+      isHalf: 0,
+    }
+  })
+
+  //获取半选中的节点的数据，当一个节点的子节点被选中时，他将会呈现半选中的状态
+  const halfCheckedNodes = tree.value.getCheckedNodes()
+  const halfChedkedNodesIds = halfCheckedNodes.map(node => {
+    return {
+      id: node.id,
+      isHalf: 1,
+    }
+  })
+
+  //将选中的id和半选中的id进行合并
+  const menuIds = [...checkedNodesIds, ...halfChedkedNodesIds]
+  console.log(menuIds)
+  //构建请求数据
+  const assignMenuDto = {
+    roleId: roleId,
+    menuIdList: menuIds,
+  }
+  await DoAssignMenuIdToSysRole(assignMenuDto)
+  ElMessage.success('操作成功')
+  dialogMenuVisible.value = false
 }
 </script>
 

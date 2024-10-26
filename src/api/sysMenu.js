@@ -17,3 +17,20 @@ export const SaveMenu = sysMenu => {
     data: sysMenu,
   })
 }
+
+// 根据id删除数据
+export const RemoveSysMenuById = id => {
+  return request({
+    url: `${api_name}/removeById/${id}`,
+    method: 'delete',
+  })
+}
+
+// 修改信息
+export const UpdateSysMenuById = sysMenu => {
+  return request({
+    url: `${api_name}/updateById`,
+    method: 'put',
+    data: sysMenu,
+  })
+}
