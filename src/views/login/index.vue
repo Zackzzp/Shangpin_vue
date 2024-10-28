@@ -33,14 +33,14 @@
         />
       </el-form-item>
       <el-form-item prop="captha">
-        <div class="captha">
+        <div class="captcha">
           <el-input
             class="text"
-            v-model="model.captha"
+            v-model="model.captcha"
             prefix-icon="Picture"
             placeholder="请输入验证码"
           ></el-input>
-          <image src="capthaSrc" @click="refreshCaptha"></image>
+          <img :src="captchaSrc" @click="refreshCaptcha" />
         </div>
       </el-form-item>
       <el-form-item>
@@ -83,7 +83,7 @@ export default defineComponent({
   name: 'login',
   setup() {
     onMounted(() => {
-      state.refreshCaptcha
+      state.refreshCaptcha()
     })
     const { proxy: ctx } = getCurrentInstance() // 可以把ctx当成vue2中的this
     const router = useRouter()
@@ -124,7 +124,7 @@ export default defineComponent({
     const state = reactive({
       model: {
         userName: 'admin',
-        password: '123456',
+        password: '111111',
         captcha: '',
         codeKey: '',
       },

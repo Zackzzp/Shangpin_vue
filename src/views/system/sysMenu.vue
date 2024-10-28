@@ -3,7 +3,7 @@
     <el-button type="success" size="small" @click="addShow">添 加</el-button>
   </div>
 
-  <el-dialog v-model="dialogVisible" :title="dialogTitle" width="30%">
+  <el-dialog v-model="diaglogVisible" :title="diaglogTitle" width="30%">
     <el-form label-width="120px">
       <el-form-item label="菜单标题">
         <el-input />
@@ -22,7 +22,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="saveOrUpdate">提交</el-button>
-        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button @click="diaglogVisible = false">取消</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -41,7 +41,7 @@
       {{ scope.row.status == 1 ? '正常' : '停用' }}
     </el-table-column>
     <el-table-column prop="createTime" label="创建时间" />
-    <el-table-column label="操作" align="center" width="280">
+    <el-table-column label="操作" align="center" width="280" #default="scope">
       <el-button type="success" size="small" @click="addShow(scope.row)">
         添加下级节点
       </el-button>

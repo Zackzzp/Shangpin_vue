@@ -15,10 +15,10 @@
 
     <!-- 添加按钮 -->
     <div class="tools-div">
-      <el-button type="success" size="small" @click="addShow(scope.row)">
+      <el-button type="success" size="small" @click="addShow">
         添 加
       </el-button>
-      <el-button type="warning" size="small" @click="showAssignMenu(scope.row)">
+      <el-button type="warning" size="small" @click="showAssignMenu">
         分配菜单
       </el-button>
     </div>
@@ -26,10 +26,10 @@
     <el-dialog v-model="diaglogVisible" title="添加或修改角色" width="30%">
       <el-form label-width="120px">
         <el-form-item label="角色名称">
-          <el-input />
+          <el-input v-model="sysRole.roleName" />
         </el-form-item>
         <el-form-item label="角色code">
-          <el-input />
+          <el-input v-model="sysRole.roleCode" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="submit">提交</el-button>
@@ -38,7 +38,12 @@
       </el-form>
     </el-dialog>
     <!-- 分配菜单的对话框  -->
-    <el-dialog v-model="dialogMenuVisible" title="分配菜单" width="40%">
+    <el-dialog
+      v-model="dialogMenuVisible"
+      title="分配菜单"
+      width="40%"
+      #default="scope"
+    >
       <el-form label-width="80px">
         <el-tree
           :data="sysMenuTreeList"
@@ -66,7 +71,7 @@
         <el-button type="primary" size="small" @click="editShow(scope.row)">
           修改
         </el-button>
-        <el-button type="danger" size="small" @click="deleteById(scope.row.id)">
+        <el-button type="danger" size="small" @click="deleteById(scope.row)">
           删除
         </el-button>
       </el-table-column>
@@ -194,7 +199,7 @@ const deleteById = row => {
     type: 'warning',
   })
     .then(async () => {
-      const { code } = await DeleteSysRoleById(row.id)
+      const { code } = await DeleteSysRoleById(row.id.toString())
       if (code === 200) {
         ElMessage.success('删除成功')
         fetchData()

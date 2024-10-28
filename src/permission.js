@@ -115,28 +115,28 @@ router.beforeEach(async to => {
     }
   }
 })
-router.beforeEach(async to => {
-  if (!window.localStorage[TOKEN]) {
-    return {
-      name: 'login',
-      query: {
-        redirect: to.fullPath,
-      },
-      replace: true,
-    }
-  } else {
-    const { userinfo, getUserinfo } = useAccount()
-    if (!userinfo) {
-      try {
-        await getUserinfo()
-      } catch (err) {
-        loadingInstance.close()
-        return false
-      }
-      return to.fullPath
-    }
-  }
-})
+// router.beforeEach(async to => {
+//   if (!window.localStorage[TOKEN]) {
+//     return {
+//       name: 'login',
+//       query: {
+//         redirect: to.fullPath,
+//       },
+//       replace: true,
+//     }
+//   } else {
+//     const { userinfo, getUserinfo } = useAccount()
+//     if (!userinfo) {
+//       try {
+//         await getUserinfo()
+//       } catch (err) {
+//         loadingInstance.close()
+//         return false
+//       }
+//       return to.fullPath
+//     }
+//   }
+// })
 
 router.afterEach(to => {
   loadingInstance.close()

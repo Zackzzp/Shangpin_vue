@@ -38,7 +38,7 @@
     <el-button type="success" size="small">添 加</el-button>
   </div>
 
-  <el-dialog v-model="dialogVisible" title="添加或修改" width="40%">
+  <el-dialog v-model="diaglogVisible" title="添加或修改" width="40%">
     <el-form label-width="120px">
       <el-form-item label="用户名">
         <el-input />
@@ -68,7 +68,7 @@
         <el-input />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">提交</el-button>
+        <el-button type="primary" @click="submit">提交</el-button>
         <el-button @click="dialogVisible = false">取消</el-button>
       </el-form-item>
     </el-form>
@@ -85,16 +85,12 @@
     <el-table-column prop="status" label="状态" #default="scope">
       {{ scope.row.status == 1 ? '正常' : '停用' }}
     </el-table-column>
-    <el-table-column prop="createTime" label="创建时间" #default="scope" />
-    <el-table-column label="操作" align="center" width="280">
+    <el-table-column prop="createTime" label="创建时间" />
+    <el-table-column label="操作" align="center" width="280" #default="scope">
       <el-button type="primary" size="small" @click="editUser(scope.row)">
         修改
       </el-button>
-      <el-button
-        type="danger"
-        size="small"
-        @click="DeleteSysUserById(scope.row)"
-      >
+      <el-button type="danger" size="small" @click="deleteById(scope.row)">
         删除
       </el-button>
       <el-button type="warning" size="small">
@@ -236,7 +232,7 @@ const deleteById = row => {
     type: 'warning',
   })
     .then(async () => {
-      const { code } = await DeleteSysUserById(row.id)
+      const { code } = await DeleteSysUserById(row.id.toString())
       if (code === 200) {
         ElMessage.success('删除成功')
         fetchData()
