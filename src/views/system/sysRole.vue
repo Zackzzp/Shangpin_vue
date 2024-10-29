@@ -18,9 +18,6 @@
       <el-button type="success" size="small" @click="addShow">
         添 加
       </el-button>
-      <el-button type="warning" size="small" @click="showAssignMenu">
-        分配菜单
-      </el-button>
     </div>
     <!--添加角色表单对话框-->
     <el-dialog v-model="diaglogVisible" title="添加或修改角色" width="30%">
@@ -38,15 +35,11 @@
       </el-form>
     </el-dialog>
     <!-- 分配菜单的对话框  -->
-    <el-dialog
-      v-model="dialogMenuVisible"
-      title="分配菜单"
-      width="40%"
-      #default="scope"
-    >
+    <el-dialog v-model="dialogMenuVisible" title="分配菜单" width="40%">
       <el-form label-width="80px">
         <el-tree
           :data="sysMenuTreeList"
+          ref="tree"
           show-checkbox
           default-expand-all
           node-key="id"
@@ -54,7 +47,7 @@
           :check-on-click-node="true"
         />
         <el-form-item>
-          <el-button type="primary" @click="doAssign(scope.row.id)">
+          <el-button type="primary" @click="doAssign">
             提交
           </el-button>
           <el-button @click="dialogMenuVisible = false">取消</el-button>
@@ -68,6 +61,14 @@
       <el-table-column prop="roleCode" label="角色code" width="180" />
       <el-table-column prop="createTime" label="创建时间" />
       <el-table-column label="操作" align="center" width="280" #default="scope">
+        <el-button
+          type="warning"
+          size="small"
+          @click="showAssignMenu(scope.row)"
+        >
+          分配菜单
+        </el-button>
+
         <el-button type="primary" size="small" @click="editShow(scope.row)">
           修改
         </el-button>
@@ -240,17 +241,21 @@ const sysMenuTreeList = ref([
 ])
 // 树对象变量
 const tree = ref()
-
+let selectedRoleId = ref()
 // 默认选中的菜单数据集合
 const showAssignMenu = async row => {
   dialogMenuVisible.value = true
+  console.log(row.id)
+  selectedRoleId = row.id
   const { data } = await GetSysRoleMenuIds(row.id) // 请求后端地址获取所有的菜单数据，以及当前角色所对应的菜单数据
   sysMenuTreeList.value = data.sysMenuList
   tree.value.setCheckedKeys(data.roleMenuIds) // 进行数据回显
 }
 
-const doAssign = async roleId => {
+const doAssign = async () => {
+  console.log(selectedRoleId)
   const checkedNodes = tree.value.getCheckedNodes()
+  console.log('Checked Nodes:', checkedNodes)
   const checkedNodesIds = checkedNodes.map(node => {
     return {
       id: node.id,
@@ -272,7 +277,7 @@ const doAssign = async roleId => {
   console.log(menuIds)
   //构建请求数据
   const assignMenuDto = {
-    roleId: roleId,
+    roleId: selectedRoleId,
     menuIdList: menuIds,
   }
   await DoAssignMenuIdToSysRole(assignMenuDto)

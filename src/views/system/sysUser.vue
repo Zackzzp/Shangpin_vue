@@ -35,7 +35,7 @@
 
   <!--添加按钮-->
   <div class="tools-div">
-    <el-button type="success" size="small">添 加</el-button>
+    <el-button type="success" size="small" @click="addShow">添 加</el-button>
   </div>
 
   <el-dialog v-model="diaglogVisible" title="添加或修改" width="40%">
