@@ -6,16 +6,16 @@
   <el-dialog v-model="diaglogVisible" :title="diaglogTitle" width="30%">
     <el-form label-width="120px">
       <el-form-item label="菜单标题">
-        <el-input />
+        <el-input v-model="sysMenu.title" />
       </el-form-item>
       <el-form-item label="路由名称">
-        <el-input />
+        <el-input v-model="sysMenu.component" />
       </el-form-item>
       <el-form-item label="排序">
-        <el-input />
+        <el-input v-model="sysMenu.sortValue" />
       </el-form-item>
       <el-form-item label="状态">
-        <el-radio-group>
+        <el-radio-group v-model="sysMenu.status">
           <el-radio :label="1">正常</el-radio>
           <el-radio :label="0">停用</el-radio>
         </el-radio-group>
