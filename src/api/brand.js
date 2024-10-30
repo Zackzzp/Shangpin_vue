@@ -18,3 +18,20 @@ export const SaveBrand = brand => {
     data: brand,
   })
 }
+
+// 修改信息
+export const UpdateBrandById = brand => {
+  return request({
+    url: `${api_name}/updateById`,
+    method: 'put',
+    data: brand,
+  })
+}
+
+// 根据id删除品牌
+export const DeleteBrandById = id => {
+  return request({
+    url: `${api_name}/deleteById/${id}`,
+    method: 'delete',
+  })
+}

@@ -9,11 +9,11 @@
       <img :src="scope.row.logo" width="50" />
     </el-table-column>
     <el-table-column prop="createTime" label="创建时间" />
-    <el-table-column label="操作" align="center" width="200">
-      <el-button type="primary" size="small">
+    <el-table-column label="操作" align="center" width="200" #default="scope">
+      <el-button type="primary" size="small" @click="editShow(scope.row)">
         修改
       </el-button>
-      <el-button type="danger" size="small">
+      <el-button type="danger" size="small" @click="remove(scope.row.id)">
         删除
       </el-button>
     </el-table-column>
@@ -54,8 +54,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { GetBrandPageList, SaveBrand } from '@/api/brand'
-import { ElMessage } from 'element-plus'
+import {
+  GetBrandPageList,
+  SaveBrand,
+  UpdateBrandById,
+  DeleteBrandById,
+} from '@/api/brand'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useApp } from '@/pinia/modules/app'
 const headers = {
   Authorization: useApp().authorization.token, // 从pinia中获取token，在进行文件上传的时候将token设置到请求头中
@@ -128,6 +133,35 @@ const saveData = async () => {
   dialogVisible.value = false
   ElMessage.success('操作成功')
   fetchData()
+}
+// 修改
+const updateData = async () => {
+  await UpdateBrandById(brand.value)
+  dialogVisible.value = false
+  ElMessage.success('操作成功')
+  fetchData()
+}
+//进入修改
+const editShow = row => {
+  brand.value = row
+  dialogVisible.value = true
+}
+
+//删除
+const remove = async id => {
+  ElMessageBox.confirm('此操作将永久删除该记录, 是否继续?', 'Warning', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  })
+    .then(async () => {
+      await DeleteBrandById(id)
+      ElMessage.success('删除成功')
+      fetchData()
+    })
+    .catch(() => {
+      ElMessage.info('取消删除')
+    })
 }
 </script>
 
