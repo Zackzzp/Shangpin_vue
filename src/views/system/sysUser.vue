@@ -57,6 +57,8 @@
           class="avatar-uploader"
           action="http://localhost:8501/admin/system/fileUpload"
           :show-file-list="false"
+          :headers="headers"
+          :on-success="handleUploadSuccess"
         >
           <img v-if="sysUser.avatar" :src="sysUser.avatar" class="avatar" />
           <el-icon v-else class="avatar-uploader-icon">
@@ -117,7 +119,10 @@ import {
   DeleteSysUserById,
 } from '@/api/sysUser'
 import { ElMessage, ElMessageBox } from 'element-plus'
-
+import { useApp } from '@/pinia/modules/app'
+const headers = {
+  Authorization: useApp().authorization.token, // 从pinia中获取token，在进行文件上传的时候将token设置到请求头中
+}
 onMounted(() => {
   fetchData()
 })
@@ -241,6 +246,11 @@ const deleteById = row => {
     .catch(() => {
       ElMessage.info('取消删除')
     })
+}
+//文件上传成功处理逻辑
+const handleUploadSuccess = (response, file, fileList) => {
+  // 假设 response 是服务器返回的图片路径
+  sysUser.value.avatar = 'http://47.121.222.152:8888/' + response
 }
 </script>
 
