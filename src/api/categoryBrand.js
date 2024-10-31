@@ -36,3 +36,10 @@ export const DeleteCategoryBrandById = id => {
     method: 'delete',
   })
 }
+
+export const FindBrandByCategoryId = id => {
+  return request({
+    url: `${api_name}/findBrandByCateryId/${id}`,
+    method: 'get',
+  })
+}

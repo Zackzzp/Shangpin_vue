@@ -35,3 +35,10 @@ export const DeleteProductSpecById = id => {
     method: 'delete',
   })
 }
+
+export const FindAllProductSpec = () => {
+  return request({
+    url: `${api_name}/findAll`,
+    method: 'get',
+  })
+}
